@@ -1,0 +1,73 @@
+﻿@page "/Inventario/Nuevo"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Nuevo producto</h3>
+
+<EditForm Model="inventario" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="txtCantidad" class="form-label">Cantidad</label>
+        <InputNumber id="txtCantidad" class="form-control" @bind-Value="inventario.Cantidad" />
+        <ValidationMessage For="(()=>inventario.Cantidad)" />
+    </div>
+    <div class="mb-3">
+        <label for="txtFecha" class="form-label">Fecha de actualización</label>
+        <InputText id="txtFecha" class="form-control" @bind-Value="inventario.Fecha" />
+        <ValidationMessage For="(()=>inventario.Fecha)" />
+    </div>
+    <div class="mb-3">
+        <label for="txtUbicacion" class="form-label">Ubicación</label>
+        <InputText id="txtUbicacion" class="form-control" @bind-Value="inventario.Ubicacion" />
+        <ValidationMessage For="(()=>inventario.Ubicacion)" />
+    </div>
+    <div class="mb-3">
+        <label for="ddlProducto" class="form-label">Producto</label>
+        <select id="ddlProducto" class="form-select" @bind="productoId">
+            <option value="">Seleccionar producto</option>
+            @foreach (var producto in productos)
+            {
+                <option value="@producto.Id">@producto.Nombre</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-success">Guardar</button>
+</EditForm>
+
+@code {
+    private Inventario inventario = new Inventario();
+    private List<Producto> productos = new List<Producto>();
+    private int productoId;
+
+    private void ActualizarProductoId(ChangeEventArgs e)
+    {
+        productoId = Convert.ToInt32(e.Value);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos()
+    {
+        productos = await http.GetFromJsonAsync<List<Producto>>("api/productoes");
+    }
+
+    private async Task Guardar()
+    {
+        if (productoId == 0)
+        {
+            // No se ha seleccionado un producto válido
+            return;
+        }
+
+    //    inventario.Productos = new List<Producto>
+    //{
+    //    new Producto { Id = inventario.productoId }
+    //};
+
+        await http.PostAsJsonAsync("api/Inventarios", inventario);
+        navegar.NavigateTo("/Inventario");
+    }
+}

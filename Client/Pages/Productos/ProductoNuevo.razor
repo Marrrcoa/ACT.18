@@ -1,0 +1,37 @@
+﻿@page "/Productos/Nuevo"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Nuevo producto</h3>
+
+
+<EditForm Model="losproductos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="txtNombre" class="form-label">Nombre</label>
+        <InputText id="txtNombre" class="form-control" @bind-Value="losproductos.Nombre" />
+        <ValidationMessage For="(()=>losproductos.Nombre)" />
+    </div>
+    <div class="mb-3">
+        <label for="txtCompatibilidad" class="form-label">Compatibilidad</label>
+        <InputText id="txtCompatibilidad" class="form-control" @bind-Value="losproductos.Compatibilidad" />
+        <ValidationMessage For="(()=>losproductos.Compatibilidad)" />
+    </div>
+    <div class="mb-3">
+        <label for="txtMarca" class="form-label">Marca</label>
+        <InputText id="txtMarca" class="form-control" @bind-Value="losproductos.Marca" />
+        <ValidationMessage For="(()=>losproductos.Marca)" />
+    </div>
+    <button type="submit" class="btn btn-outline-success">Guardar</button>
+
+</EditForm>
+
+@code {
+    private Producto losproductos = new Producto();
+
+    private async void Guardar()
+    {
+        await http.PostAsJsonAsync("api/productoes", losproductos);
+        navegar.NavigateTo("/Productos");
+    }
+}

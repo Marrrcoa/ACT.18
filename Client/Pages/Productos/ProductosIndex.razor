@@ -1,0 +1,69 @@
+﻿@page "/Productos"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Lista de productos</h3>
+<div class="text-center mt-3 mb-3">
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="Agregar"><span class="oi oi-plus"></span> Nuevo producto</button>
+</div>
+
+@if (losproductos == null)
+{
+    <h1>Cargando datos...</h1>
+}
+else if (losproductos.Count == 0)
+{
+    <h1>No existen productos registrados</h1>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Todos los Títulos:</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var elproducto in losproductos)
+                {
+                    <tr>
+                        <td>@elproducto.Id</td>
+                        <td>@elproducto.Nombre</td>
+                        <td>@elproducto.Marca</td>
+                        <td>
+                            <button class="btn btn-outline-info" @onclick="(() => Modificar(elproducto!.Id))">Editar</button>
+                            <button class="btn btn-outline-danger" @onclick="(() => Eliminar(elproducto))">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Producto>? losproductos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        losproductos = await http.GetFromJsonAsync<List<Producto>>("api/productoes");
+    }
+
+    private void Agregar()
+    {
+        navegar.NavigateTo("/Productos/Nuevo");
+    }
+
+    private void Modificar(int id)
+    {
+        navegar.NavigateTo($"/Productos/Modificar/{id}");
+    }
+
+    private async Task Eliminar(Producto Unproducto)
+    {
+        await http.DeleteAsync($"api/productoes/{Unproducto.Id}");
+        losproductos!.Remove(Unproducto);
+    }
+}

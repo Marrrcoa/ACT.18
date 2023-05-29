@@ -1,0 +1,45 @@
+﻿@page "/Ventas/Nuevo"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Nueva Venta</h3>
+
+<EditForm Model="lasventas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="txtCantidad" class="form-label">Cantidad</label>
+        <div class="input-group">
+            <input id="txtCantidad" class="form-control" @bind="@lasventas.Cantidad" />
+            <ValidationMessage For="()=>lasventas.Cantidad" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="txtFecha" class="form-label">Fecha</label>
+        <div class="input-group">
+            <input id="txtFecha" class="form-control" @bind="@lasventas.Fecha" />
+            <ValidationMessage For="()=>lasventas.Fecha" />
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private Ventas lasventas = new Ventas();
+
+    private async void Guardar()
+    {
+        await http.PostAsJsonAsync("api/Ventas", lasventas);
+        navegar.NavigateTo("/Ventas");
+    }
+
+    private void Cancelar()
+    {
+        navegar.NavigateTo("/Ventas");
+    }
+}

@@ -1,0 +1,73 @@
+﻿@page "/Inventario"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Lista de inventario</h3>
+<div class="text-center mt-3 mb-3">
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="Agregar"><span class="oi oi-plus"></span> Nuevo inventario</button>
+</div>
+
+@if (elinventario == null)
+{
+    <h1>Cargando datos...</h1>
+}
+else if (elinventario.Count == 0)
+{
+    <h1>No existe inventario registrado</h1>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Ubicación</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in elinventario)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Cantidad</td>
+                        <td>@item.Fecha</td>
+                        <td>@item.Ubicacion</td>
+                        <td>
+                            <button class="btn btn-outline-info" @onclick="(() => Modificar(item!.Id))">Editar</button>
+                            <button class="btn btn-outline-danger" @onclick="(() => Eliminar(item))">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Inventario>? elinventario;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elinventario = await http.GetFromJsonAsync<List<Inventario>>("api/Inventarios");
+    }
+
+    private void Agregar()
+    {
+        navegar.NavigateTo("/Inventario/Nuevo");
+    }
+
+    private void Modificar(int id)
+    {
+        navegar.NavigateTo($"/Inventario/Modificar/{id}");
+    }
+
+    private async Task Eliminar(Inventario inventario)
+    {
+        await http.DeleteAsync($"api/Inventarios/{inventario.Id}");
+        elinventario!.Remove(inventario);
+    }
+}

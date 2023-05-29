@@ -1,0 +1,68 @@
+﻿@page "/Ventas"
+@inject HttpClient http
+@inject NavigationManager navegar
+
+<h3>Lista de productos</h3>
+<div class="text-center mt-3 mb-3">
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="Agregar"><span class="oi oi-plus"></span> Nueva venta</button>
+</div>
+
+@if (lasventas == null)
+{
+    <h1>Cargando datos...</h1>
+}
+else if (lasventas.Count == 0)
+{
+    <h1>No existen Ventas Registradas</h1>
+    <div class="text-center mt-3 mb-3">
+        <img src="https://www.kredx.com/vendor-lp/vendor/logistic/images/giphy-3.gif">
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Número de venta</th>
+                    <th scope="col">Cantidad vendida</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var laventa in lasventas)
+                {
+                    <tr>
+                        <td>@laventa.Id</td>
+                        <td>@laventa.Cantidad</td>
+                        <td>@laventa.Fecha</td>
+                        <td>
+                            <button class="btn btn-outline-danger" @onclick="(() => Eliminar(laventa))">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Ventas>? lasventas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lasventas = await http.GetFromJsonAsync<List<Ventas>>("api/Ventas");
+    }
+
+    private void Agregar()
+    {
+        navegar.NavigateTo("/Ventas/Nuevo");
+    }
+
+    private async Task Eliminar(Ventas Laventa)
+    {
+        await http.DeleteAsync($"api/Ventas/{Laventa.Id}");
+        lasventas!.Remove(Laventa);
+    }
+}

@@ -1,0 +1,68 @@
+﻿@page "/fetchdata"
+@inject HttpClient http
+@inject NavigationManager navegar
+<h3>Lista de productos</h3>
+<button class="btn btn-primary" @onclick="Agregar"><span class="oi oi-plus"></span>Nuevo producto</button>
+
+@if (losproductos == null)
+{
+    <h1>Cargando datos...</h1>
+}
+else if (losproductos.Count == 0)
+{
+    <h1>No existen personas Registradas</h1>
+}
+else
+{
+    <lu>
+
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Todos los Títulos:</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var elproducto in losproductos)
+                {
+                    <tr>
+                        <td class="table-primary">@elproducto.Id</td>
+                        <td class="table-primary">@elproducto.Nombre</td>
+                        <td class="table-primary">@elproducto.Marca</td>
+                        <td class="table-primary">
+                            <button class="btn btn-warning" @onclick="(()=>Modificar(elproducto!.Id))">Editar</button>
+                            <button class="btn btn-warning" @onclick="(()=>Eliminar(elproducto))">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </lu>
+}
+
+@code {
+    private List<Producto>? losproductos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        losproductos = await http.GetFromJsonAsync<List<Producto>>("api/productoes");
+    }
+
+    private void Agregar()
+    {
+        navegar.NavigateTo("/Productos/Nuevo");
+    }
+
+    private void Modificar(int id)
+    {
+        navegar.NavigateTo($"/Productos/Modificar/{id}");
+    }
+
+    private async Task Eliminar(Producto Unproducto)
+    {
+        await http.DeleteAsync($"api/productoes/{Unproducto.Id}");
+        losproductos!.Remove(Unproducto);
+    }
+}
